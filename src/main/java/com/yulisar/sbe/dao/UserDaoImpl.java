@@ -47,11 +47,9 @@ public class UserDaoImpl implements UserDao {
 
         user.setNama(voUser.getNama());
         user.setJenisKelamin(voUser.getJenisKelamin());
-        //user.setTanggalLahir(voUser.getTanggalLahir());
         user.setAlamat(voUser.getAlamat());
         user.setEmail(voUser.getEmail());
 
-//        User user = new User();
         Criteria critrole = sessionFactory.getCurrentSession().createCriteria(UserRole.class);
         critrole.add(Restrictions.eq("namaRole", voUser.getNamaRole()));
 
@@ -63,7 +61,6 @@ public class UserDaoImpl implements UserDao {
         }
         user.setUserRole(userRole);
 
-        //Date dob = null;
         String pattern = "dd-MMM-yyyy";
         SimpleDateFormat sdf = new SimpleDateFormat(pattern);
         try {
@@ -72,23 +69,13 @@ public class UserDaoImpl implements UserDao {
         } catch (ParseException ex) {
             Logger.getLogger(UserDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-//        Criteria crituser = sessionFactory.getCurrentSession().createCriteria(User.class);
-//        crituser.add(Restrictions.eq("idUser", voUser.getIduser()));
-//        List<User> resultsuser = crituser.list();
-        //save to DB if id and role availalble 
-//        if (resultsuser.size() == 0) {
-        //sessionFactory.getCurrentSession().save(user);
         if (voUser.getIduser() > 0) {
             user.setIdUser(voUser.getIduser());
             sessionFactory.getCurrentSession().update(user);
         } else {
             sessionFactory.getCurrentSession().save(user);
         }
-
         return voUser;
-//        }
-//        return new VoUser();
     }
 
     @Override
@@ -114,14 +101,14 @@ public class UserDaoImpl implements UserDao {
             vo.setIduser((int) arrobj[0]);
             vo.setNama((String) arrobj[1]);
             StringBuffer sbdob = new StringBuffer();
-
+            
+            //check if data has date (tanggallahir) value
             if (arrobj[2] != null) {
                 String pattern = "dd-MMM-yyyy";
                 SimpleDateFormat sdf = new SimpleDateFormat(pattern);
                 String strdob = sdf.format(arrobj[2]);
                 sbdob.append(strdob);
             }
-
             vo.setTanggalLahir(sbdob.toString());
             vo.setJenisKelamin((char) arrobj[3]);
             vo.setEmail((String) arrobj[4]);
@@ -167,34 +154,23 @@ public class UserDaoImpl implements UserDao {
         String filter = filters;
         if (filters != null && !filter.isEmpty()) {
             if (StringUtils.isNotBlank(filter)) {
-
+                //pgresql
                 sql.append("AND (upper(NAMA) LIKE  upper(:filter) ");
                 sql.append("OR upper(tr.NAMA_ROLE) LIKE  upper(:filter) ");
                 sql.append("OR upper(JENIS_KELAMIN) LIKE  upper(:filter) ");
                 sql.append("OR upper(EMAIL) LIKE  upper(:filter) ");
                 sql.append("OR upper(ALAMAT) LIKE  upper(:filter)) ");
-                
-//                
-//                sql.append("OR tr.NAMA_ROLE LIKE  concat('%', upper(:filter), '%') ");
-//                sql.append("OR JENIS_KELAMIN LIKE  concat('%', upper(:filter), '%') ");
-//                sql.append("OR EMAIL LIKE  concat('%', upper(:filter), '%')) ");
 
-//                sql.append("AND upper(NAMA) like upper(:filter) ");
-//                sql.append("AND upper(ALAMAT) like upper(:filter) ");
-//                sql.append("AND upper(NAMA) like upper(:filter) ");
-//                sql.append("AND upper(NAMA) like upper(:filter) ");
-//                sql.append("AND upper(NAMA) like upper(:filter) ");
-//                sql.append("AND upper(NAMA) like upper('%:filter%') ");
-//                sql.append("AND (upper(NAMA) LIKE  '%', upper(:filter), '%') ");
-//                sql.append("OR ALAMAT LIKE  concat('%', upper(:filter), '%') ");
-//                sql.append("OR tr.NAMA_ROLE LIKE  concat('%', upper(:filter), '%') ");
-//                sql.append("OR JENIS_KELAMIN LIKE  concat('%', upper(:filter), '%') ");
-//                sql.append("OR EMAIL LIKE  concat('%', upper(:filter), '%')) ");
+                //mysql    
+                //sql.append("AND (NAMA LIKE  concat('%', upper(:filter), '%') ");
+                //sql.append("OR ALAMAT LIKE  concat('%', upper(:filter), '%') ");
+                //sql.append("OR tr.NAMA_ROLE LIKE  concat('%', upper(:filter), '%') ");
+                //sql.append("OR JENIS_KELAMIN LIKE  concat('%', upper(:filter), '%') ");
+                //sql.append("OR EMAIL LIKE  concat('%', upper(:filter), '%')) ");
             }
         }
     }
 
-    //upper(NAMA) like upper('%i%')
     private void appendSort(StringBuilder sb, DtoParamPaging parampage) {
         String sortcol = parampage.getSortCol();
         String sortoder = parampage.getOrder();
@@ -203,10 +179,9 @@ public class UserDaoImpl implements UserDao {
 
     private void appendLimit(StringBuilder sql, int offset, int length) {
         if (length > 0) {
-            sql.append(" LIMIT ").append(length).append(" OFFSET ").append(offset);  //postgre
+            sql.append(" LIMIT ").append(length).append(" OFFSET ").append(offset);  //pgsql
 //            sql.append(" LIMIT ").append(offset).append(", ").append(length); //mysql
         }
-
     }
 
     @Override
@@ -217,26 +192,19 @@ public class UserDaoImpl implements UserDao {
         criteria.add(Restrictions.eq("idUser", voUser.getIduser()));
         List<User> res = criteria.list();
         return res.size();
-
     }
 
     @Override
     public VoUser delete(int userId) {
         Criteria critUser = sessionFactory.getCurrentSession().createCriteria(User.class);
         critUser.add(Restrictions.eq("idUser", userId));
-
-        List<User> listUser = critUser.list();
         User user = (User) critUser.uniqueResult();
-//        for (User useritem : listUser) {
-//            User user = new User();
-//            user = useritem;
-//            
-//        }
         sessionFactory.getCurrentSession().delete(user);
 
+        //if success return the user id data else will return null 
+        //by the calling method
         VoUser voUser = new VoUser();
         voUser.setIduser(userId);
-
         return voUser;
     }
 

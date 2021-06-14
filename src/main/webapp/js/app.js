@@ -135,6 +135,7 @@ function fillinputs(datarow) {
     $('#input-role').val(datarow.namaRole);
 }
 
+//fumction to clean the structure of requeste array params
 function planify(data) {
     for (var i = 0; i < data.columns.length; i++) {
         column = data.columns[i];
@@ -170,7 +171,6 @@ function delete_user(iduser) {
 }
 
 function saveUser() {
-
     var vouser = new Object();
     vouser.nama = $('#input-nama').val();
     vouser.jenisKelamin = $('#input-jenisKelamin').val();
@@ -184,7 +184,6 @@ function saveUser() {
         vouser.iduser = -1;
     }
     console.log(vouser);
-
     $.ajax({
         type: "POST",
         url: urlsave,
@@ -253,7 +252,6 @@ function confirmSave() {
 function toggler(divId) {
     $("#" + divId).toggle();
 }
-
 
 function clear_inputs() {
 
