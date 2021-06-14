@@ -1,7 +1,7 @@
 var datarow
 var tablemain
 
-let rootpath = "/glitest-mysql/api/user/"
+let rootpath = "/glitest-pgsql/api/user/"
 
 let urlget = rootpath+"get-user"
 let urlsave = rootpath+"save-user"

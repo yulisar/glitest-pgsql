@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/glitest-mysql"/>
+<Context path="/glitest-pgsql"/>

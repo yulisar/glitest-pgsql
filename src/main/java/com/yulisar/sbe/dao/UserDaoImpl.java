@@ -51,9 +51,7 @@ public class UserDaoImpl implements UserDao {
         user.setAlamat(voUser.getAlamat());
         user.setEmail(voUser.getEmail());
 
-        
 //        User user = new User();
-        
         Criteria critrole = sessionFactory.getCurrentSession().createCriteria(UserRole.class);
         critrole.add(Restrictions.eq("namaRole", voUser.getNamaRole()));
 
@@ -81,7 +79,6 @@ public class UserDaoImpl implements UserDao {
         //save to DB if id and role availalble 
 //        if (resultsuser.size() == 0) {
         //sessionFactory.getCurrentSession().save(user);
-
         if (voUser.getIduser() > 0) {
             user.setIdUser(voUser.getIduser());
             sessionFactory.getCurrentSession().update(user);
@@ -99,6 +96,7 @@ public class UserDaoImpl implements UserDao {
 
         String searchstr = (String) parampage.getSearch().get("value");
         StringBuilder sqlstrsb = new StringBuilder(queryUserEmail());
+        searchstr = "%" + searchstr + "%";
         appendSqlQueryBySearch(sqlstrsb, searchstr);
         appendSort(sqlstrsb, parampage);
         appendLimit(sqlstrsb, parampage.getOffset(), parampage.getLimit());
@@ -138,6 +136,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int countUserList(String searchstr) {
         StringBuilder sqlstrsb = new StringBuilder(queryCountUserEmail());
+        searchstr = "%" + searchstr + "%";
         appendSqlQueryBySearch(sqlstrsb, searchstr);
         SQLQuery q = sessionFactory.getCurrentSession()
                 .createSQLQuery(sqlstrsb.toString());
@@ -168,15 +167,34 @@ public class UserDaoImpl implements UserDao {
         String filter = filters;
         if (filters != null && !filter.isEmpty()) {
             if (StringUtils.isNotBlank(filter)) {
-                sql.append("AND (NAMA LIKE  concat('%', upper(:filter), '%') ");
-                sql.append("OR ALAMAT LIKE  concat('%', upper(:filter), '%') ");
-                sql.append("OR tr.NAMA_ROLE LIKE  concat('%', upper(:filter), '%') ");
-                sql.append("OR JENIS_KELAMIN LIKE  concat('%', upper(:filter), '%') ");
-                sql.append("OR EMAIL LIKE  concat('%', upper(:filter), '%')) ");
+
+                sql.append("AND (upper(NAMA) LIKE  upper(:filter) ");
+                sql.append("OR upper(tr.NAMA_ROLE) LIKE  upper(:filter) ");
+                sql.append("OR upper(JENIS_KELAMIN) LIKE  upper(:filter) ");
+                sql.append("OR upper(EMAIL) LIKE  upper(:filter) ");
+                sql.append("OR upper(ALAMAT) LIKE  upper(:filter)) ");
+                
+//                
+//                sql.append("OR tr.NAMA_ROLE LIKE  concat('%', upper(:filter), '%') ");
+//                sql.append("OR JENIS_KELAMIN LIKE  concat('%', upper(:filter), '%') ");
+//                sql.append("OR EMAIL LIKE  concat('%', upper(:filter), '%')) ");
+
+//                sql.append("AND upper(NAMA) like upper(:filter) ");
+//                sql.append("AND upper(ALAMAT) like upper(:filter) ");
+//                sql.append("AND upper(NAMA) like upper(:filter) ");
+//                sql.append("AND upper(NAMA) like upper(:filter) ");
+//                sql.append("AND upper(NAMA) like upper(:filter) ");
+//                sql.append("AND upper(NAMA) like upper('%:filter%') ");
+//                sql.append("AND (upper(NAMA) LIKE  '%', upper(:filter), '%') ");
+//                sql.append("OR ALAMAT LIKE  concat('%', upper(:filter), '%') ");
+//                sql.append("OR tr.NAMA_ROLE LIKE  concat('%', upper(:filter), '%') ");
+//                sql.append("OR JENIS_KELAMIN LIKE  concat('%', upper(:filter), '%') ");
+//                sql.append("OR EMAIL LIKE  concat('%', upper(:filter), '%')) ");
             }
         }
     }
 
+    //upper(NAMA) like upper('%i%')
     private void appendSort(StringBuilder sb, DtoParamPaging parampage) {
         String sortcol = parampage.getSortCol();
         String sortoder = parampage.getOrder();
@@ -185,8 +203,8 @@ public class UserDaoImpl implements UserDao {
 
     private void appendLimit(StringBuilder sql, int offset, int length) {
         if (length > 0) {
-            //sql.append(" LIMIT ").append(length).append(" OFFSET ").append(offset);  //postgre
-            sql.append(" LIMIT ").append(offset).append(", ").append(length); //mysql
+            sql.append(" LIMIT ").append(length).append(" OFFSET ").append(offset);  //postgre
+//            sql.append(" LIMIT ").append(offset).append(", ").append(length); //mysql
         }
 
     }
@@ -207,7 +225,6 @@ public class UserDaoImpl implements UserDao {
         Criteria critUser = sessionFactory.getCurrentSession().createCriteria(User.class);
         critUser.add(Restrictions.eq("idUser", userId));
 
-        
         List<User> listUser = critUser.list();
         User user = (User) critUser.uniqueResult();
 //        for (User useritem : listUser) {
@@ -216,10 +233,10 @@ public class UserDaoImpl implements UserDao {
 //            
 //        }
         sessionFactory.getCurrentSession().delete(user);
-        
+
         VoUser voUser = new VoUser();
         voUser.setIduser(userId);
-        
+
         return voUser;
     }
 
